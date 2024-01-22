@@ -1,10 +1,10 @@
 #version 330 core
 
-in vec3 fs_Color;
-
 out vec4 FragColor;
+
+uniform vec3 cubeColor;
 
 void main()
 {
-	FragColor = vec4(fs_Color, 1);	
+	FragColor = vec4(cubeColor, 1);
 }

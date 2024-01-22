@@ -9,6 +9,8 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 {
 	this->initOpenGL(wWidth, wHeight, wTitle);
 	this->initShader("./shaders/shader.vert", "./shaders/shader.frag");
+	this->initCube();
+	this->initCamera(45.0f, glm::vec3(0, 0, -10));
 }
 
 Game::~Game()
@@ -29,16 +31,27 @@ void Game::run()
 void Game::update()
 {
 	glfwPollEvents();
+
+	//
+
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, glm::vec3(0, 3, 0));
+	
+	shader->use();
+	shader->setMat4("model", model);
+	shader->setMat4("view", camera->getViewMatrix());
+	shader->setMat4("projection", camera->getProjectionMatrix());
 }
 
 void Game::render()
 {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	shader->use();
-	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	shader->setVec3("cubeColor", glm::vec3(glm::sin(glfwGetTime()), 1, glm::cos(glfwGetTime())));
+
+	cube->render(shader);
 
 	glfwSwapBuffers(window);
 }
@@ -67,30 +80,20 @@ void Game::initOpenGL(int wWidth, int wHeight, const char* wTitle)
 
 	glfwSwapInterval(1);
 
-	//
-
-	float data[]
-	{
-		0.0f, 0.5f, 0.0f,		1, 0, 0,
-		-0.5f, -0.5f, 0.0f,		0, 1, 0,
-		0.5f, -0.5f, 0.0f,		0, 0, 1
-	};
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
-	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Game::initShader(const char* vPath, const char* fPath)
 {
 	shader = new Shader(vPath, fPath);
+}
+
+void Game::initCube()
+{
+	cube = new Cube();
+}
+
+void Game::initCamera(float fov, glm::vec3 pos)
+{
+	camera = new Camera(fov, pos);
 }

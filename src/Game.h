@@ -6,6 +6,8 @@
 #include <cstdlib>
 
 #include "Shader.h"
+#include "Cube.h"
+#include "Camera.h"
 
 class Game
 {
@@ -21,9 +23,12 @@ private:
 
 	void initOpenGL(int wWidth, int wHeight, const char* wTitle);
 	void initShader(const char* vPath, const char* fPath);
+	void initCube();
+	void initCamera(float fov, glm::vec3 pos);
 
 	// variables
 	GLFWwindow* window;
 	Shader* shader;
-	unsigned int vao, vbo;
+	Cube* cube;
+	Camera* camera;
 };

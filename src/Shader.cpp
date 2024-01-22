@@ -34,8 +34,6 @@ Shader::Shader(const char* vPath, const char* fPath)
 
 	glDeleteShader(vShader);
 	glDeleteShader(fShader);
-
-	std::cout << vSource << "\n-----\n" << fSource << '\n';
 }
 
 void Shader::use()
