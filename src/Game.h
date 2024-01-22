@@ -5,6 +5,8 @@
 
 #include <cstdlib>
 
+#include "Shader.h"
+
 class Game
 {
 public:
@@ -18,7 +20,10 @@ private:
 	void render();
 
 	void initOpenGL(int wWidth, int wHeight, const char* wTitle);
+	void initShader(const char* vPath, const char* fPath);
 
 	// variables
 	GLFWwindow* window;
+	Shader* shader;
+	unsigned int vao, vbo;
 };

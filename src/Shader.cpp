@@ -8,7 +8,7 @@ Shader::Shader(const char* vPath, const char* fPath)
 	std::stringstream vStream;
 	std::stringstream fStream;
 	vStream << vRead.rdbuf();
-	vStream << fRead.rdbuf();
+	fStream << fRead.rdbuf();
 
 	std::string vString = vStream.str();
 	std::string fString = fStream.str();
@@ -35,7 +35,7 @@ Shader::Shader(const char* vPath, const char* fPath)
 	glDeleteShader(vShader);
 	glDeleteShader(fShader);
 
-	std::cout << vShader << "\n-----\n" << fShader << '\n';
+	std::cout << vSource << "\n-----\n" << fSource << '\n';
 }
 
 void Shader::use()
