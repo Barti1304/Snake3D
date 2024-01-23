@@ -11,10 +11,15 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 	this->initShader("./shaders/shader.vert", "./shaders/shader.frag");
 	this->initCube();
 	this->initCamera(45.0f, glm::vec3(0, 0, -10));
+	this->initTextures();
 }
 
 Game::~Game()
 {
+	delete shader;
+	delete cube;
+	delete camera;
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
@@ -48,8 +53,7 @@ void Game::render()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	shader->use();
-	shader->setVec3("cubeColor", glm::vec3(glm::sin(glfwGetTime()), 1, glm::cos(glfwGetTime())));
+	tex_snake->bindTexture();
 
 	cube->render(shader);
 
@@ -96,4 +100,9 @@ void Game::initCube()
 void Game::initCamera(float fov, glm::vec3 pos)
 {
 	camera = new Camera(fov, pos);
+}
+
+void Game::initTextures()
+{
+	tex_snake = new Texture("./res/snake.png");
 }

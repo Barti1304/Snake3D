@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Cube.h"
 #include "Camera.h"
+#include "Texture.h"
 
 class Game
 {
@@ -25,10 +26,12 @@ private:
 	void initShader(const char* vPath, const char* fPath);
 	void initCube();
 	void initCamera(float fov, glm::vec3 pos);
+	void initTextures();
 
 	// variables
 	GLFWwindow* window;
 	Shader* shader;
 	Cube* cube;
 	Camera* camera;
+	Texture* tex_snake;
 };
