@@ -12,6 +12,7 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 	this->initCube();
 	this->initCamera(45.0f, glm::vec3(0, 0, -10));
 	this->initTextures();
+	this->initImGui();
 }
 
 Game::~Game()
@@ -19,6 +20,8 @@ Game::~Game()
 	delete shader;
 	delete cube;
 	delete camera;
+
+	this->shutdownImGui();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -39,6 +42,10 @@ void Game::update()
 
 	//
 
+	this->processInput();
+
+	//
+
 	glm::mat4 model(1.0f);
 	model = glm::translate(model, glm::vec3(0, 3, 0));
 	
@@ -53,11 +60,26 @@ void Game::render()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	this->newFrameImGui();
+
 	tex_snake->bindTexture();
 
 	cube->render(shader);
 
+	this->displayImGuiContent();
+	this->renderImGui();
+
 	glfwSwapBuffers(window);
+}
+
+void Game::processInput()
+{
+	// exit
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+		glfwSetWindowShouldClose(window, true);
+
+	// snake controls
+
 }
 
 void Game::initOpenGL(int wWidth, int wHeight, const char* wTitle)
@@ -105,4 +127,45 @@ void Game::initCamera(float fov, glm::vec3 pos)
 void Game::initTextures()
 {
 	tex_snake = new Texture("./res/snake.png");
+}
+
+void Game::initImGui()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+void Game::newFrameImGui()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+}
+
+void Game::displayImGuiContent()
+{
+	ImGui::Begin("Debug");
+
+	ImGui::Text("I'm a debug window!");
+
+	ImGui::End();
+}
+
+void Game::renderImGui()
+{
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Game::shutdownImGui()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 }
