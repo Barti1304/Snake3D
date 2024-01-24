@@ -10,9 +10,10 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 	this->initOpenGL(wWidth, wHeight, wTitle);
 	this->initShader("./shaders/shader.vert", "./shaders/shader.frag");
 	this->initCube();
-	this->initCamera(45.0f, glm::vec3(0, 0, -10));
+	this->initCamera(60.0f, glm::vec3(0, 0, 10));
 	this->initTextures();
 	this->initImGui();
+	this->initSnake();
 }
 
 Game::~Game()
@@ -38,19 +39,21 @@ void Game::run()
 
 void Game::update()
 {
-	glfwPollEvents();
+	this->updateDeltaTime();
 
 	//
+
+	glfwPollEvents();
 
 	this->processInput();
 
-	//
+	// 
 
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, glm::vec3(0, 3, 0));
+	snake->update(deltaTime);
+
+	//
 	
 	shader->use();
-	shader->setMat4("model", model);
 	shader->setMat4("view", camera->getViewMatrix());
 	shader->setMat4("projection", camera->getProjectionMatrix());
 }
@@ -62,14 +65,30 @@ void Game::render()
 
 	this->newFrameImGui();
 
-	tex_snake->bindTexture();
+	//
 
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, glm::vec3(snake->getSnakePos(), 0));
+	
+	shader->use();
+	shader->setMat4("model", model);
+	
+	tex_snake->bindTexture();
 	cube->render(shader);
+
+	//
 
 	this->displayImGuiContent();
 	this->renderImGui();
 
 	glfwSwapBuffers(window);
+}
+
+void Game::updateDeltaTime()
+{
+	static float lastFrame;
+	deltaTime = glfwGetTime() - lastFrame;
+	lastFrame = glfwGetTime();
 }
 
 void Game::processInput()
@@ -79,7 +98,7 @@ void Game::processInput()
 		glfwSetWindowShouldClose(window, true);
 
 	// snake controls
-
+	snake->processInput();
 }
 
 void Game::initOpenGL(int wWidth, int wHeight, const char* wTitle)
@@ -129,6 +148,11 @@ void Game::initTextures()
 	tex_snake = new Texture("./res/snake.png");
 }
 
+void Game::initSnake()
+{
+	snake = new Snake(glm::vec2(0, 0));
+}
+
 void Game::initImGui()
 {
 	IMGUI_CHECKVERSION();
@@ -152,7 +176,7 @@ void Game::displayImGuiContent()
 {
 	ImGui::Begin("Debug");
 
-	ImGui::Text("I'm a debug window!");
+	ImGui::Text("Snake head pos: [%.2f, %.2f]", snake->getSnakePos().x, snake->getSnakePos().y);
 
 	ImGui::End();
 }

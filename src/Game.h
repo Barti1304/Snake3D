@@ -14,6 +14,7 @@
 #include "Cube.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "Snake.h"
 
 class Game
 {
@@ -27,6 +28,7 @@ private:
 	void update();
 	void render();
 
+	void updateDeltaTime();
 	void processInput();
 
 	void initOpenGL(int wWidth, int wHeight, const char* wTitle);
@@ -34,6 +36,7 @@ private:
 	void initCube();
 	void initCamera(float fov, glm::vec3 pos);
 	void initTextures();
+	void initSnake();
 	
 	void initImGui();
 	void newFrameImGui();
@@ -47,4 +50,7 @@ private:
 	Cube* cube;
 	Camera* camera;
 	Texture* tex_snake;
+	Snake* snake;
+
+	float deltaTime;
 };
