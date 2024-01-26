@@ -36,7 +36,7 @@ private:
 	void initCube();
 	void initCamera(float fov, glm::vec3 pos);
 	void initTextures();
-	void initSnake();
+	void initSnake(glm::vec2 pos);
 	
 	void initImGui();
 	void newFrameImGui();

@@ -4,7 +4,8 @@ Snake::Snake(glm::vec2 pos)
 {
 	snakePosition = pos;
 	snakeDirection = 'd';
-	snakeSpeed = 1.5f;
+	snakeSpeed = 2.5f;
+	snakeLength = 4;
 }
 
 void Snake::processInput()
@@ -25,8 +26,8 @@ void Snake::processInput()
 void Snake::update(float deltaTime)
 {
 	// direction
-	static int xSavedPos{ 0 };
-	static int ySavedPos{ 0 };
+	static int xSavedPos{ (int)snakePosition.x * 100 };
+	static int ySavedPos{ (int)snakePosition.y * 100 };
 
 	int xSnakePos = int(snakePosition.x * 100.0f);
 	int ySnakePos = int(snakePosition.y * 100.0f);
@@ -34,29 +35,32 @@ void Snake::update(float deltaTime)
 	bool xGridCheck = std::abs(xSavedPos - xSnakePos) > 100;
 	bool yGridCheck = std::abs(ySavedPos - ySnakePos) > 100;
 
+	// remove repeated keystrokes (one after another)
+	while (keystrokes.size())
+	{
+		if (snakeDirection == keystrokes.front())
+			keystrokes.pop_front();
+		else
+			break;
+	}
+
+	// snake should not be able to turn 180 degrees in any direction
+	while (keystrokes.size())
+	{
+		if (snakeDirection == 'w' && keystrokes.front() == 's'
+			|| snakeDirection == 'a' && keystrokes.front() == 'd'
+			|| snakeDirection == 's' && keystrokes.front() == 'w'
+			|| snakeDirection == 'd' && keystrokes.front() == 'a')
+		{
+			keystrokes.pop_front();
+		}
+		else
+			break;
+	}
+
+	// if snake is aligned to the grid - turn if any keystrokes are registered
 	if (keystrokes.size())
 	{
-		for (char elem : keystrokes)
-			std::cout << elem << ' ';
-		std::cout << '\n';
-
-		while (keystrokes.size())
-		{
-			if (snakeDirection == keystrokes.front())
-				keystrokes.pop_front();
-			else
-				break;
-		}
-
-		// snake should not be able to turn 180 degrees in any direction (to be finished)
-		/*while (keystrokes.size())
-		{
-			if (snakeDirection == 'w' && keystrokes.front() == 's')
-				keystrokes.pop_front();
-			else 
-				break;
-		}*/
-
 		if (xGridCheck || yGridCheck)
 		{
 			snakeDirection = keystrokes.front();
@@ -64,6 +68,7 @@ void Snake::update(float deltaTime)
 		}
 	}
 
+	// align snake position to x axis (for adding its body part by grid)
 	if (xGridCheck)
 	{
 		xSavedPos += (xSavedPos > xSnakePos) ? -100 : 100;
@@ -74,6 +79,7 @@ void Snake::update(float deltaTime)
 			snakePosition.x = 0;
 	}
 	
+	// align snake position to y axis (for adding its body part by grid)
 	if (yGridCheck)
 	{
 		ySavedPos += (ySavedPos > ySnakePos) ? -100 : 100;
@@ -83,6 +89,30 @@ void Snake::update(float deltaTime)
 		else
 			snakePosition.y = 0;
 	}
+
+
+	// snake body
+	if (xGridCheck || yGridCheck)
+	{
+		bool canBeAdded{ true };
+
+		for (const auto& bodySegment : bodyCoords)
+		{
+			if (snakePosition.x == bodySegment.x && snakePosition.y == bodySegment.y)
+			{
+				canBeAdded = false;
+				break;
+			}
+		}
+
+		if (canBeAdded)
+			bodyCoords.push_back(snakePosition);
+	}
+
+
+	// snake body lenght
+	if (bodyCoords.size() > snakeLength)
+		bodyCoords.pop_front();
 
 
 	// movement
@@ -102,7 +132,44 @@ void Snake::update(float deltaTime)
 	}
 }
 
-glm::vec2 Snake::getSnakePos() const
+void Snake::render(Cube* cube, Shader* shader, Texture* texture)
 {
-	return snakePosition;
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, glm::vec3(snakePosition, 0));
+
+	shader->use();
+	shader->setMat4("model", model);
+	
+	texture->bindTexture();
+
+	cube->render(shader);
+
+	for (const auto& bodyPos : bodyCoords)
+	{
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(bodyPos, 0));
+		
+		shader->setMat4("model", model);
+
+		cube->render(shader);
+	}
+}
+
+bool Snake::checkCollisions()
+{
+	for (const auto& bodySegment : bodyCoords)
+	{
+		bool isTouchingBodySegment
+		{
+			snakePosition.x > bodySegment.x - 0.5f
+			&& snakePosition.x < bodySegment.x + 0.5f
+			&& snakePosition.y > bodySegment.y - 0.5f
+			&& snakePosition.y < bodySegment.y + 0.5f
+		};
+
+		if (isTouchingBodySegment && bodySegment != bodyCoords.back())
+			return true;
+	};
+
+	return false;
 }

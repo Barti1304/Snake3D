@@ -8,12 +8,19 @@ void framebuffersizecallback(GLFWwindow* window, int width, int height)
 Game::Game(int wWidth, int wHeight, const char* wTitle)
 {
 	this->initOpenGL(wWidth, wHeight, wTitle);
+	
 	this->initShader("./shaders/shader.vert", "./shaders/shader.frag");
+	
 	this->initCube();
-	this->initCamera(60.0f, glm::vec3(0, 0, 10));
+	
+	this->initCamera(60.0f, glm::vec3(0, 0, 15));
+	
 	this->initTextures();
+	
 	this->initImGui();
-	this->initSnake();
+
+	// begin from (-1, 0) to place 1st body segment on (0, 0)
+	this->initSnake(glm::vec2(-1, 0));
 }
 
 Game::~Game()
@@ -21,6 +28,10 @@ Game::~Game()
 	delete shader;
 	delete cube;
 	delete camera;
+	delete tex_snake;
+	
+	// causes errors on exit
+	// delete cube;
 
 	this->shutdownImGui();
 
@@ -50,6 +61,15 @@ void Game::update()
 	// 
 
 	snake->update(deltaTime);
+	
+	if (snake->checkCollisions())
+	{
+		std::cout << "Collision detected!\n"
+			<< snake->getSnakePos().x << " x " << snake->getSnakePos().y << '\n'
+			<< snake->getSnakeDirection() << '\n';
+
+		std::exit(1);
+	}
 
 	//
 	
@@ -67,14 +87,7 @@ void Game::render()
 
 	//
 
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, glm::vec3(snake->getSnakePos(), 0));
-	
-	shader->use();
-	shader->setMat4("model", model);
-	
-	tex_snake->bindTexture();
-	cube->render(shader);
+	snake->render(cube, shader, tex_snake);
 
 	//
 
@@ -87,8 +100,8 @@ void Game::render()
 void Game::updateDeltaTime()
 {
 	static float lastFrame;
-	deltaTime = glfwGetTime() - lastFrame;
-	lastFrame = glfwGetTime();
+	deltaTime = (float)glfwGetTime() - lastFrame;
+	lastFrame = (float)glfwGetTime();
 }
 
 void Game::processInput()
@@ -148,9 +161,9 @@ void Game::initTextures()
 	tex_snake = new Texture("./res/snake.png");
 }
 
-void Game::initSnake()
+void Game::initSnake(glm::vec2 pos)
 {
-	snake = new Snake(glm::vec2(0, 0));
+	snake = new Snake(pos);
 }
 
 void Game::initImGui()
