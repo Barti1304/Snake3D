@@ -10,32 +10,24 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 	this->initOpenGL(wWidth, wHeight, wTitle);
 	
 	this->initShader("./shaders/shader.vert", "./shaders/shader.frag");
-	
-	this->initCube();
-	
+		
 	this->initCamera(60.0f, glm::vec3(0, 0, 15));
 	
 	this->initTextures();
 	
 	this->initImGui();
 
-	// begin from (-1, 0) to place 1st body segment on (0, 0)
 	this->initSnake(glm::vec2(-1, 0));
 
 	this->initMap();
+
+	this->initRenderer();
 }
 
 Game::~Game()
 {
-	delete shader;
-	delete cube;
 	delete camera;
-	delete tex_snake;
-	delete tex_wall;
 	
-	// causes errors on exit
-	// delete cube;
-
 	this->shutdownImGui();
 
 	glfwDestroyWindow(window);
@@ -71,12 +63,6 @@ void Game::update()
 
 		std::exit(1);
 	}
-
-	//
-	
-	shader->use();
-	shader->setMat4("view", camera->getViewMatrix());
-	shader->setMat4("projection", camera->getProjectionMatrix());
 }
 
 void Game::render()
@@ -88,9 +74,22 @@ void Game::render()
 
 	//
 
-	map->render(cube, shader, tex_wall);
+	renderer->setShader(shader);
+	renderer->setMat4("view", camera->getViewMatrix());
+	renderer->setMat4("projection", camera->getProjectionMatrix());
 
-	snake->render(cube, shader, tex_snake);
+	// render walls
+	renderer->setTexture(tex_wall);
+
+	for (auto wall : map->getWalls())
+		renderer->renderCube(wall.getPosition());
+
+	// render snake
+	renderer->setTexture(tex_snake);
+
+	renderer->renderCube(snake->getPosition());
+	for (auto bodySegmentPos : snake->getBody())
+		renderer->renderCube(bodySegmentPos);
 
 	//
 
@@ -144,26 +143,9 @@ void Game::initOpenGL(int wWidth, int wHeight, const char* wTitle)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Game::initShader(const char* vPath, const char* fPath)
-{
-	shader = new Shader(vPath, fPath);
-}
-
-void Game::initCube()
-{
-	cube = new Cube();
-}
-
 void Game::initCamera(float fov, glm::vec3 pos)
 {
 	camera = new Camera(fov, pos);
-}
-
-void Game::initTextures()
-{
-	tex_snake = new Texture("./res/snake.png");
-
-	tex_wall = new Texture("./res/wall.png");
 }
 
 void Game::initSnake(glm::vec2 pos)
@@ -186,6 +168,23 @@ void Game::initMap()
 		map->addWall(Wall({-8, y}));
 		map->addWall(Wall({8, y}));
 	}
+}
+
+void Game::initShader(const char* vPath, const char* fPath)
+{
+	shader = new Shader(vPath, fPath);
+}
+
+void Game::initTextures()
+{
+	tex_snake = new Texture("./res/snake.png");
+
+	tex_wall = new Texture("./res/wall.png");
+}
+
+void Game::initRenderer()
+{
+	renderer = new Renderer();
 }
 
 void Game::initImGui()

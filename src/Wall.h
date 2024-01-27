@@ -10,6 +10,4 @@ class Wall : public GameObject
 {
 public:
 	Wall(glm::vec2 pos);
-
-	void render(Cube* cube, Shader* shader, Texture* texture);
 };

@@ -133,29 +133,6 @@ void Snake::update(float deltaTime)
 	}
 }
 
-void Snake::render(Cube* cube, Shader* shader, Texture* texture)
-{
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, glm::vec3(GM_position, 0));
-
-	shader->use();
-	shader->setMat4("model", model);
-	
-	texture->bindTexture();
-
-	cube->render(shader);
-
-	for (const auto& bodyPos : bodyCoords)
-	{
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(bodyPos, 0));
-		
-		shader->setMat4("model", model);
-
-		cube->render(shader);
-	}
-}
-
 bool Snake::checkCollisionWithItself()
 {
 	for (const auto& bodySegment : bodyCoords)

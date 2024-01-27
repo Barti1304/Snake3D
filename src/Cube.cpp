@@ -63,7 +63,6 @@ Cube::Cube()
 
 void Cube::render(Shader* shader)
 {
-	shader->use();
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }

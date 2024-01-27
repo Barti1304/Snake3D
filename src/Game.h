@@ -17,6 +17,8 @@
 #include "Snake.h"
 #include "Map.h"
 
+#include "Renderer.h"
+
 class Game
 {
 public:
@@ -33,12 +35,13 @@ private:
 	void processInput();
 
 	void initOpenGL(int wWidth, int wHeight, const char* wTitle);
-	void initShader(const char* vPath, const char* fPath);
-	void initCube();
 	void initCamera(float fov, glm::vec3 pos);
-	void initTextures();
 	void initSnake(glm::vec2 pos);
 	void initMap();
+
+	void initShader(const char* vPath, const char* fPath);
+	void initTextures();
+	void initRenderer();
 	
 	void initImGui();
 	void newFrameImGui();
@@ -47,9 +50,10 @@ private:
 	void shutdownImGui();
 
 	// variables
+	Renderer* renderer;
+
 	GLFWwindow* window;
 	Shader* shader;
-	Cube* cube;
 	Camera* camera;
 	Texture* tex_snake;
 	Texture* tex_wall;

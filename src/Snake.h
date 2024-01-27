@@ -24,15 +24,16 @@ public:
 	void processInput();
 
 	void update(float deltaTime);
-	void render(Cube* cube, Shader* shader, Texture* texture);
 
 	bool checkCollisionWithItself();
 	bool checkColisionWithWalls(std::list<Wall> walls);
 
+	const std::list<glm::vec2>& getBody() { return bodyCoords; }
+
 private:
 	void inputCallbackCheck(char c);
 
-	//variables
+	// variables
 	char snakeDirection;
 	float snakeSpeed;
 	int snakeLength;
