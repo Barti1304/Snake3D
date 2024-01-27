@@ -2,7 +2,8 @@
 
 Snake::Snake(glm::vec2 pos)
 {
-	snakePosition = pos;
+	GM_position = pos;
+
 	snakeDirection = 'd';
 	snakeSpeed = 2.5f;
 	snakeLength = 4;
@@ -11,26 +12,26 @@ Snake::Snake(glm::vec2 pos)
 void Snake::processInput()
 {
 	if (ImGui::IsKeyPressed(ImGuiKey_W))
-		keystrokes.push_back('w');
+		this->inputCallbackCheck('w');
 
 	if (ImGui::IsKeyPressed(ImGuiKey_A))
-		keystrokes.push_back('a');
-	
+		this->inputCallbackCheck('a');
+
 	if (ImGui::IsKeyPressed(ImGuiKey_S))
-		keystrokes.push_back('s');
-	
+		this->inputCallbackCheck('s');
+
 	if (ImGui::IsKeyPressed(ImGuiKey_D))
-		keystrokes.push_back('d');
+		this->inputCallbackCheck('d');
 }
 
 void Snake::update(float deltaTime)
 {
 	// direction
-	static int xSavedPos{ (int)snakePosition.x * 100 };
-	static int ySavedPos{ (int)snakePosition.y * 100 };
+	static int xSavedPos{ (int)GM_position.x * 100 };
+	static int ySavedPos{ (int)GM_position.y * 100 };
 
-	int xSnakePos = int(snakePosition.x * 100.0f);
-	int ySnakePos = int(snakePosition.y * 100.0f);
+	int xSnakePos = int(GM_position.x * 100);
+	int ySnakePos = int(GM_position.y * 100);
 	
 	bool xGridCheck = std::abs(xSavedPos - xSnakePos) > 100;
 	bool yGridCheck = std::abs(ySavedPos - ySnakePos) > 100;
@@ -44,7 +45,7 @@ void Snake::update(float deltaTime)
 			break;
 	}
 
-	// snake should not be able to turn 180 degrees in any direction
+	// snake cannot be able to turn 180 degrees in any direction
 	while (keystrokes.size())
 	{
 		if (snakeDirection == 'w' && keystrokes.front() == 's'
@@ -74,9 +75,9 @@ void Snake::update(float deltaTime)
 		xSavedPos += (xSavedPos > xSnakePos) ? -100 : 100;
 		
 		if (xSavedPos)
-			snakePosition.x = float(xSavedPos / 100);
+			GM_position.x = float(xSavedPos / 100);
 		else
-			snakePosition.x = 0;
+			GM_position.x = 0;
 	}
 	
 	// align snake position to y axis (for adding its body part by grid)
@@ -85,9 +86,9 @@ void Snake::update(float deltaTime)
 		ySavedPos += (ySavedPos > ySnakePos) ? -100 : 100;
 
 		if (ySavedPos)
-			snakePosition.y = float(ySavedPos / 100);
+			GM_position.y = float(ySavedPos / 100);
 		else
-			snakePosition.y = 0;
+			GM_position.y = 0;
 	}
 
 
@@ -98,7 +99,7 @@ void Snake::update(float deltaTime)
 
 		for (const auto& bodySegment : bodyCoords)
 		{
-			if (snakePosition.x == bodySegment.x && snakePosition.y == bodySegment.y)
+			if (GM_position.x == bodySegment.x && GM_position.y == bodySegment.y)
 			{
 				canBeAdded = false;
 				break;
@@ -106,7 +107,7 @@ void Snake::update(float deltaTime)
 		}
 
 		if (canBeAdded)
-			bodyCoords.push_back(snakePosition);
+			bodyCoords.push_back(GM_position);
 	}
 
 
@@ -119,23 +120,23 @@ void Snake::update(float deltaTime)
 	switch (snakeDirection)
 	{
 	case 'w':
-		snakePosition += glm::vec2(0, 1) * snakeSpeed * deltaTime;
+		GM_position += glm::vec2(0, 1) * snakeSpeed * deltaTime;
 		break;
 	case 'a':
-		snakePosition -= glm::vec2(1, 0) * snakeSpeed * deltaTime;
+		GM_position -= glm::vec2(1, 0) * snakeSpeed * deltaTime;
 		break;
 	case 's':
-		snakePosition -= glm::vec2(0, 1) * snakeSpeed * deltaTime;
+		GM_position -= glm::vec2(0, 1) * snakeSpeed * deltaTime;
 		break;
 	case 'd':
-		snakePosition += glm::vec2(1, 0) * snakeSpeed * deltaTime;
+		GM_position += glm::vec2(1, 0) * snakeSpeed * deltaTime;
 	}
 }
 
 void Snake::render(Cube* cube, Shader* shader, Texture* texture)
 {
 	glm::mat4 model(1.0f);
-	model = glm::translate(model, glm::vec3(snakePosition, 0));
+	model = glm::translate(model, glm::vec3(GM_position, 0));
 
 	shader->use();
 	shader->setMat4("model", model);
@@ -161,10 +162,10 @@ bool Snake::checkCollisions()
 	{
 		bool isTouchingBodySegment
 		{
-			snakePosition.x > bodySegment.x - 0.5f
-			&& snakePosition.x < bodySegment.x + 0.5f
-			&& snakePosition.y > bodySegment.y - 0.5f
-			&& snakePosition.y < bodySegment.y + 0.5f
+			GM_position.x > bodySegment.x - 0.5f
+			&& GM_position.x < bodySegment.x + 0.5f
+			&& GM_position.y > bodySegment.y - 0.5f
+			&& GM_position.y < bodySegment.y + 0.5f
 		};
 
 		if (isTouchingBodySegment && bodySegment != bodyCoords.back())
@@ -172,4 +173,15 @@ bool Snake::checkCollisions()
 	};
 
 	return false;
+}
+
+void Snake::inputCallbackCheck(char c)
+{
+	if (keystrokes.size())
+	{
+		if (keystrokes.back() != c)
+			keystrokes.push_back(c);
+	}
+	else
+		keystrokes.push_back(c);
 }

@@ -64,9 +64,7 @@ void Game::update()
 	
 	if (snake->checkCollisions())
 	{
-		std::cout << "Collision detected!\n"
-			<< snake->getSnakePos().x << " x " << snake->getSnakePos().y << '\n'
-			<< snake->getSnakeDirection() << '\n';
+		std::cout << "Collision detected!\n" << snake->getPosition().x << " x " << snake->getPosition().y << '\n';
 
 		std::exit(1);
 	}
@@ -189,7 +187,7 @@ void Game::displayImGuiContent()
 {
 	ImGui::Begin("Debug");
 
-	ImGui::Text("Snake head pos: [%.2f, %.2f]", snake->getSnakePos().x, snake->getSnakePos().y);
+	ImGui::Text("Snake head pos: [%.2f, %.2f]", snake->getPosition().x, snake->getPosition().y);
 
 	ImGui::End();
 }
