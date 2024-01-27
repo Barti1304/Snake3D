@@ -15,6 +15,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Snake.h"
+#include "Map.h"
 
 class Game
 {
@@ -37,6 +38,7 @@ private:
 	void initCamera(float fov, glm::vec3 pos);
 	void initTextures();
 	void initSnake(glm::vec2 pos);
+	void initMap();
 	
 	void initImGui();
 	void newFrameImGui();
@@ -50,7 +52,9 @@ private:
 	Cube* cube;
 	Camera* camera;
 	Texture* tex_snake;
+	Texture* tex_wall;
 	Snake* snake;
+	Map* map;
 
 	float deltaTime;
 };

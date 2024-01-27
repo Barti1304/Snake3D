@@ -21,6 +21,8 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 
 	// begin from (-1, 0) to place 1st body segment on (0, 0)
 	this->initSnake(glm::vec2(-1, 0));
+
+	this->initMap();
 }
 
 Game::~Game()
@@ -29,6 +31,7 @@ Game::~Game()
 	delete cube;
 	delete camera;
 	delete tex_snake;
+	delete tex_wall;
 	
 	// causes errors on exit
 	// delete cube;
@@ -62,7 +65,7 @@ void Game::update()
 
 	snake->update(deltaTime);
 	
-	if (snake->checkCollisions())
+	if (snake->checkCollisionWithItself() || snake->checkColisionWithWalls(map->getWalls()))
 	{
 		std::cout << "Collision detected!\n" << snake->getPosition().x << " x " << snake->getPosition().y << '\n';
 
@@ -84,6 +87,8 @@ void Game::render()
 	this->newFrameImGui();
 
 	//
+
+	map->render(cube, shader, tex_wall);
 
 	snake->render(cube, shader, tex_snake);
 
@@ -157,11 +162,30 @@ void Game::initCamera(float fov, glm::vec3 pos)
 void Game::initTextures()
 {
 	tex_snake = new Texture("./res/snake.png");
+
+	tex_wall = new Texture("./res/wall.png");
 }
 
 void Game::initSnake(glm::vec2 pos)
 {
 	snake = new Snake(pos);
+}
+
+void Game::initMap()
+{
+	map = new Map();
+	
+	for (int x = -8; x <= 8; x++)
+	{
+		map->addWall(Wall({ x, -8 }));
+		map->addWall(Wall({ x, 8 }));
+	}
+
+	for (int y = -7; y <= 7; y++)
+	{
+		map->addWall(Wall({-8, y}));
+		map->addWall(Wall({8, y}));
+	}
 }
 
 void Game::initImGui()

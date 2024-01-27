@@ -156,7 +156,7 @@ void Snake::render(Cube* cube, Shader* shader, Texture* texture)
 	}
 }
 
-bool Snake::checkCollisions()
+bool Snake::checkCollisionWithItself()
 {
 	for (const auto& bodySegment : bodyCoords)
 	{
@@ -172,6 +172,24 @@ bool Snake::checkCollisions()
 			return true;
 	};
 
+	return false;
+}
+
+bool Snake::checkColisionWithWalls(std::list<Wall> walls)
+{
+	for (auto& wall : walls)
+	{
+		bool isTouchingBodySegment
+		{
+			GM_position.x > wall.getPosition().x - 0.5f
+			&& GM_position.x < wall.getPosition().x + 0.5f
+			&& GM_position.y > wall.getPosition().y - 0.5f
+			&& GM_position.y < wall.getPosition().y + 0.5f
+		};
+
+		if (isTouchingBodySegment)
+			return true;
+	};
 	return false;
 }
 

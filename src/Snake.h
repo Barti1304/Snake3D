@@ -14,6 +14,8 @@
 
 #include "GameObject.h"
 
+#include "Wall.h"
+
 class Snake : public GameObject
 {
 public:
@@ -24,7 +26,8 @@ public:
 	void update(float deltaTime);
 	void render(Cube* cube, Shader* shader, Texture* texture);
 
-	bool checkCollisions();
+	bool checkCollisionWithItself();
+	bool checkColisionWithWalls(std::list<Wall> walls);
 
 private:
 	void inputCallbackCheck(char c);
