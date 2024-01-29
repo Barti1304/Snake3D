@@ -39,8 +39,6 @@ private:
 	void initSnake(glm::vec2 pos);
 	void initMap();
 
-	void initShader(const char* vPath, const char* fPath);
-	void initTextures();
 	void initRenderer();
 	
 	void initImGui();

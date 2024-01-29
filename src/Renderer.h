@@ -7,13 +7,19 @@
 #include "Cube.h"
 #include "Texture.h"
 
+#include <string>
+#include <unordered_map>
+
 class Renderer
 {
 public:
 	Renderer();
 
-	void setShader(Shader* sh);
-	void setTexture(Texture* tex);
+	void addShader(Shader* shader, std::string id);
+	void addTexture(Texture* texture, std::string id);
+
+	void setActiveShader(std::string id);
+	void setActiveTexture(std::string id);
 
 	void setInt(const char* uniform, int value);
 	void setFloat(const char* uniform, float value);
@@ -25,6 +31,9 @@ public:
 private:
 	Cube* cube;
 
-	Shader* shader;
-	Texture* texture;
+	Shader* activeShader;
+	Texture* activeTexture;
+
+	std::unordered_map<std::string, Shader*> shaderMap;
+	std::unordered_map<std::string, Texture*> textureMap;
 };

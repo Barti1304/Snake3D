@@ -5,7 +5,7 @@
 class GameObject
 {
 public:
-	glm::vec2 getPosition();
+	glm::vec2 getPosition() const;
 
 protected:
 	glm::vec2 GM_position;

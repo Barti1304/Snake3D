@@ -8,13 +8,9 @@ void framebuffersizecallback(GLFWwindow* window, int width, int height)
 Game::Game(int wWidth, int wHeight, const char* wTitle)
 {
 	this->initOpenGL(wWidth, wHeight, wTitle);
-	
-	this->initShader("./shaders/shader.vert", "./shaders/shader.frag");
-		
+			
 	this->initCamera(60.0f, glm::vec3(0, 0, 15));
-	
-	this->initTextures();
-	
+		
 	this->initImGui();
 
 	this->initSnake(glm::vec2(-1, 0));
@@ -74,21 +70,22 @@ void Game::render()
 
 	//
 
-	renderer->setShader(shader);
+	renderer->setActiveShader("shader");
 	renderer->setMat4("view", camera->getViewMatrix());
 	renderer->setMat4("projection", camera->getProjectionMatrix());
 
 	// render walls
-	renderer->setTexture(tex_wall);
+	renderer->setActiveTexture("tex_wall");
 
-	for (auto wall : map->getWalls())
+	for (const auto& wall : map->getWalls())
 		renderer->renderCube(wall.getPosition());
 
 	// render snake
-	renderer->setTexture(tex_snake);
+	renderer->setActiveTexture("tex_snake");
 
 	renderer->renderCube(snake->getPosition());
-	for (auto bodySegmentPos : snake->getBody())
+
+	for (const auto& bodySegmentPos : snake->getBody())
 		renderer->renderCube(bodySegmentPos);
 
 	//
@@ -170,21 +167,16 @@ void Game::initMap()
 	}
 }
 
-void Game::initShader(const char* vPath, const char* fPath)
-{
-	shader = new Shader(vPath, fPath);
-}
-
-void Game::initTextures()
-{
-	tex_snake = new Texture("./res/snake.png");
-
-	tex_wall = new Texture("./res/wall.png");
-}
-
 void Game::initRenderer()
 {
 	renderer = new Renderer();
+
+	// init shaders
+	renderer->addShader(new Shader("./shaders/shader.vert", "./shaders/shader.frag"), "shader");
+
+	// init textures
+	renderer->addTexture(new Texture("./res/snake.png"), "tex_snake");
+	renderer->addTexture(new Texture("./res/wall.png"), "tex_wall");
 }
 
 void Game::initImGui()

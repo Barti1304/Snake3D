@@ -4,40 +4,60 @@ Renderer::Renderer()
 {
 	cube = new Cube();
 
-	shader = nullptr;
-	texture = nullptr;
+	activeShader = nullptr;
+	activeTexture = nullptr;
 }
 
-void Renderer::setShader(Shader* sh)
+void Renderer::addShader(Shader* shader, std::string id)
 {
-	shader = sh;
-	shader->use();
+	shaderMap.insert({ id, shader });
 }
 
-void Renderer::setTexture(Texture* tex)
+void Renderer::addTexture(Texture* texture, std::string id)
 {
-	texture = tex;
-	texture->bindTexture();
+	textureMap.insert({ id, texture });
+}
+
+void Renderer::setActiveShader(std::string id)
+{
+	if (shaderMap.find(id) != shaderMap.end())
+	{
+		activeShader = shaderMap.at(id);
+		activeShader->use();
+	}
+	else
+		std::cout << "[RENDERER : ERROR] - no shader with id: '" << id << "' has been found!\n";
+}
+
+void Renderer::setActiveTexture(std::string id)
+{
+	if (textureMap.find(id) != textureMap.end())
+	{
+		activeTexture = textureMap.at(id);
+		activeTexture->bindTexture();
+	}
+	else
+		std::cout << "[RENDERER : ERROR] - no texture with id: '" << id << "' has been found!\n";
 }
 
 void Renderer::setInt(const char* uniform, int value)
 {
-	shader->setInt(uniform, value);
+	activeShader->setInt(uniform, value);
 }
 
 void Renderer::setFloat(const char* uniform, float value)
 {
-	shader->setFloat(uniform, value);
+	activeShader->setFloat(uniform, value);
 }
 
 void Renderer::setVec3(const char* uniform, glm::vec3 value)
 {
-	shader->setVec3(uniform, value);
+	activeShader->setVec3(uniform, value);
 }
 
 void Renderer::setMat4(const char* uniform, glm::mat4 value)
 {
-	shader->setMat4(uniform, value);
+	activeShader->setMat4(uniform, value);
 }
 
 void Renderer::renderCube(glm::vec2 pos)
@@ -45,7 +65,7 @@ void Renderer::renderCube(glm::vec2 pos)
 	glm::mat4 model(1.0f);
 	model = glm::translate(model, glm::vec3(pos, 0));
 
-	shader->setMat4("model", model);
+	activeShader->setMat4("model", model);
 
-	cube->render(shader);
+	cube->render(activeShader);
 }
