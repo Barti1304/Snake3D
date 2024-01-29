@@ -26,19 +26,26 @@ public:
 	void update(float deltaTime);
 
 	bool checkCollisionWithItself();
-	bool checkColisionWithWalls(std::list<Wall> walls);
+	bool checkCollisionWithWalls(std::list<Wall> walls);
+	bool checkCollisionWithObject(glm::vec2 pos);
 
-	const std::list<glm::vec2>& getBody() { return bodyCoords; }
+	const std::list<glm::vec2>& getBody();
+
+	int getGameScore();
+
+	void changeLengthBy(int value);
 
 private:
 	void inputCallbackCheck(char c);
+
+	int gameScore;
 
 	// variables
 	char snakeDirection;
 	float snakeSpeed;
 	int snakeLength;
 
-	std::list<glm::vec2> bodyCoords;
+	std::list<glm::vec2> bodySegments;
 
 	std::list<int> keystrokes;
 };

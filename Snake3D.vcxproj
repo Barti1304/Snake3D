@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Apple.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Map.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
@@ -140,6 +141,7 @@
     <ClCompile Include="src\Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Apple.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Map.h" />
     <ClInclude Include="src\GameObject.h" />

@@ -17,6 +17,10 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 
 	this->initMap();
 
+	this->initApple();
+
+	//
+
 	this->initRenderer();
 }
 
@@ -53,11 +57,17 @@ void Game::update()
 
 	snake->update(deltaTime);
 	
-	if (snake->checkCollisionWithItself() || snake->checkColisionWithWalls(map->getWalls()))
+	if (snake->checkCollisionWithItself() || snake->checkCollisionWithWalls(map->getWalls()))
 	{
 		std::cout << "Collision detected!\n" << snake->getPosition().x << " x " << snake->getPosition().y << '\n';
 
 		std::exit(1);
+	}
+
+	if (snake->checkCollisionWithObject(apple->getPosition()))
+	{
+		apple->moveToRandomPosition(snake->getBody());
+		snake->changeLengthBy(1);
 	}
 }
 
@@ -87,6 +97,11 @@ void Game::render()
 
 	for (const auto& bodySegmentPos : snake->getBody())
 		renderer->renderCube(bodySegmentPos);
+
+	// render apple
+	renderer->setActiveTexture("tex_apple");
+
+	renderer->renderCube(apple->getPosition());
 
 	//
 
@@ -167,6 +182,12 @@ void Game::initMap()
 	}
 }
 
+void Game::initApple()
+{
+	apple = new Apple(15);
+	apple->moveToRandomPosition(snake->getBody());
+}
+
 void Game::initRenderer()
 {
 	renderer = new Renderer();
@@ -177,6 +198,8 @@ void Game::initRenderer()
 	// init textures
 	renderer->addTexture(new Texture("./res/snake.png"), "tex_snake");
 	renderer->addTexture(new Texture("./res/wall.png"), "tex_wall");
+	renderer->addTexture(new Texture("./res/apple.png"), "tex_apple");
+	renderer->addTexture(new Texture("./res/grass.png"), "tex_grass");
 }
 
 void Game::initImGui()
@@ -202,7 +225,7 @@ void Game::displayImGuiContent()
 {
 	ImGui::Begin("Debug");
 
-	ImGui::Text("Snake head pos: [%.2f, %.2f]", snake->getPosition().x, snake->getPosition().y);
+	ImGui::Text("Game score: %i", snake->getGameScore());
 
 	ImGui::End();
 }

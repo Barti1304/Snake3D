@@ -16,6 +16,7 @@
 #include "Texture.h"
 #include "Snake.h"
 #include "Map.h"
+#include "Apple.h"
 
 #include "Renderer.h"
 
@@ -38,6 +39,7 @@ private:
 	void initCamera(float fov, glm::vec3 pos);
 	void initSnake(glm::vec2 pos);
 	void initMap();
+	void initApple();
 
 	void initRenderer();
 	
@@ -57,6 +59,7 @@ private:
 	Texture* tex_wall;
 	Snake* snake;
 	Map* map;
+	Apple* apple;
 
 	float deltaTime;
 };

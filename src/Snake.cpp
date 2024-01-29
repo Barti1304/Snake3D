@@ -6,7 +6,9 @@ Snake::Snake(glm::vec2 pos)
 
 	snakeDirection = 'd';
 	snakeSpeed = 2.5f;
-	snakeLength = 4;
+	snakeLength = 3;
+
+	gameScore = 0;
 }
 
 void Snake::processInput()
@@ -97,7 +99,7 @@ void Snake::update(float deltaTime)
 	{
 		bool canBeAdded{ true };
 
-		for (const auto& bodySegment : bodyCoords)
+		for (const auto& bodySegment : bodySegments)
 		{
 			if (GM_position.x == bodySegment.x && GM_position.y == bodySegment.y)
 			{
@@ -107,13 +109,13 @@ void Snake::update(float deltaTime)
 		}
 
 		if (canBeAdded)
-			bodyCoords.push_back(GM_position);
+			bodySegments.push_back(GM_position);
 	}
 
 
 	// snake body lenght
-	if (bodyCoords.size() > snakeLength)
-		bodyCoords.pop_front();
+	if (bodySegments.size() > snakeLength)
+		bodySegments.pop_front();
 
 
 	// movement
@@ -135,7 +137,7 @@ void Snake::update(float deltaTime)
 
 bool Snake::checkCollisionWithItself()
 {
-	for (const auto& bodySegment : bodyCoords)
+	for (const auto& bodySegment : bodySegments)
 	{
 		bool isTouchingBodySegment
 		{
@@ -145,16 +147,16 @@ bool Snake::checkCollisionWithItself()
 			&& GM_position.y < bodySegment.y + 0.5f
 		};
 
-		if (isTouchingBodySegment && bodySegment != bodyCoords.back())
+		if (isTouchingBodySegment && bodySegment != bodySegments.back())
 			return true;
 	};
 
 	return false;
 }
 
-bool Snake::checkColisionWithWalls(std::list<Wall> walls)
+bool Snake::checkCollisionWithWalls(std::list<Wall> walls)
 {
-	for (auto& wall : walls)
+	for (const auto& wall : walls)
 	{
 		bool isTouchingBodySegment
 		{
@@ -167,7 +169,36 @@ bool Snake::checkColisionWithWalls(std::list<Wall> walls)
 		if (isTouchingBodySegment)
 			return true;
 	};
+
 	return false;
+}
+
+bool Snake::checkCollisionWithObject(glm::vec2 pos)
+{
+	bool isTouchingBodySegment
+	{
+		GM_position.x > pos.x - 0.5f
+		&& GM_position.x < pos.x + 0.5f
+		&& GM_position.y > pos.y - 0.5f
+		&& GM_position.y < pos.y + 0.5f
+	};
+
+	return isTouchingBodySegment;
+}
+
+const std::list<glm::vec2>& Snake::getBody()
+{
+	return bodySegments;
+}
+
+int Snake::getGameScore()
+{
+	return (int(bodySegments.size() - 3) < 0) ? 0 : int(bodySegments.size() - 3);
+}
+
+void Snake::changeLengthBy(int value)
+{
+	snakeLength += value;
 }
 
 void Snake::inputCallbackCheck(char c)
