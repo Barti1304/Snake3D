@@ -26,7 +26,11 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 
 Game::~Game()
 {
+	delete renderer;
 	delete camera;
+	delete snake;
+	delete map;
+	delete apple;
 	
 	this->shutdownImGui();
 
@@ -84,11 +88,13 @@ void Game::render()
 	renderer->setMat4("view", camera->getViewMatrix());
 	renderer->setMat4("projection", camera->getProjectionMatrix());
 
+
 	// render walls
 	renderer->setActiveTexture("tex_wall");
 
 	for (const auto& wall : map->getWalls())
 		renderer->renderCube(wall.getPosition());
+
 
 	// render snake
 	renderer->setActiveTexture("tex_snake");
@@ -98,12 +104,20 @@ void Game::render()
 	for (const auto& bodySegmentPos : snake->getBody())
 		renderer->renderCube(bodySegmentPos);
 
+
 	// render apple
 	renderer->setActiveTexture("tex_apple");
 
 	renderer->renderCube(apple->getPosition());
 
-	//
+
+	// render grass
+	renderer->setActiveTexture("tex_grass");
+
+	for (int y = -7; y <= 7; y++)
+		for (int x = -7; x <= 7; x++)
+			renderer->renderCube(glm::vec3(x, y, -1));
+
 
 	this->displayImGuiContent();
 	this->renderImGui();
@@ -223,9 +237,12 @@ void Game::newFrameImGui()
 
 void Game::displayImGuiContent()
 {
-	ImGui::Begin("Debug");
+	ImGui::SetNextWindowPos({ 0, 0 });
+	ImGui::SetNextWindowSize({ 100, 50 });
 
-	ImGui::Text("Game score: %i", snake->getGameScore());
+	ImGui::Begin("Snake");
+
+	ImGui::Text("Score: %i", snake->getGameScore());
 
 	ImGui::End();
 }

@@ -53,10 +53,7 @@ private:
 	Renderer* renderer;
 
 	GLFWwindow* window;
-	Shader* shader;
 	Camera* camera;
-	Texture* tex_snake;
-	Texture* tex_wall;
 	Snake* snake;
 	Map* map;
 	Apple* apple;

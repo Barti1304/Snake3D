@@ -69,3 +69,13 @@ void Renderer::renderCube(glm::vec2 pos)
 
 	cube->render(activeShader);
 }
+
+void Renderer::renderCube(glm::vec3 pos)
+{
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, pos);
+
+	activeShader->setMat4("model", model);
+
+	cube->render(activeShader);
+}

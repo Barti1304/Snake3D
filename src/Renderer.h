@@ -27,6 +27,7 @@ public:
 	void setMat4(const char* uniform, glm::mat4 value);
 
 	void renderCube(glm::vec2 pos);
+	void renderCube(glm::vec3 pos);
 
 private:
 	Cube* cube;
