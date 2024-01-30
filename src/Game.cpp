@@ -7,6 +7,10 @@ void framebuffersizecallback(GLFWwindow* window, int width, int height)
 
 Game::Game(int wWidth, int wHeight, const char* wTitle)
 {
+	isPaused = false;
+
+	//
+
 	this->loadHighscore();
 
 	//
@@ -71,8 +75,10 @@ void Game::update()
 
 	// 
 
-	snake->update(deltaTime);
+	if (!isPaused)
+		snake->update(deltaTime);
 	
+
 	if (snake->checkCollisionWithItself() || snake->checkCollisionWithWalls(map->getWalls()))
 		snake->die();
 
@@ -150,12 +156,13 @@ void Game::updateDeltaTime()
 
 void Game::processInput()
 {
-	// exit
+	// pause
 	if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-		glfwSetWindowShouldClose(window, true);
+		isPaused = !isPaused;
 
 	// snake controls
-	snake->processInput();
+	if (!isPaused)
+		snake->processInput();
 }
 
 void Game::initOpenGL(int wWidth, int wHeight, const char* wTitle)
@@ -253,50 +260,84 @@ void Game::newFrameImGui()
 
 void Game::displayImGuiContent()
 {
-	int sharedFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
+	this->displayScore();
 
-	// score window
+	if (isPaused)
+		this->displayPause();
+
+	if (snake->isSnakeDead())
+		this->displayGameOver();
+}
+
+void Game::displayScore()
+{
 	ImGui::SetNextWindowPos({ 0, 0 });
 	ImGui::SetNextWindowSize({ 120, 70 });
 
-	ImGui::Begin("Snake", nullptr, sharedFlags);
+	//
+
+	ImGui::Begin("Snake", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
 		ImGui::Text("Score: %i", gameScore);
 		ImGui::Text("Highscore: %i", gameHighscore);
 
 	ImGui::End();
+}
 
-	// game over window
-	if (snake->isSnakeDead())
-	{
-		ImGui::SetNextWindowPos({ 210, 230 });
-		ImGui::SetNextWindowSize({ 180, 140 });
+void Game::displayPause()
+{
+	ImGui::SetNextWindowPos({ 225, 75 });
+	ImGui::SetNextWindowSize({ 150, 150 });
 
-		ImGui::Begin("Game over!", nullptr, sharedFlags);
+	//
 
-			ImGui::Text("Your score: %i", gameScore);
+	ImGui::Begin("Pause", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-			if (ImGui::Button("Retry"))
-				this->resetGame();
+	if (ImGui::Button("Continue"))
+		isPaused = false;
 
-			ImGui::SameLine();
+	ImGui::SameLine();
 
-			if (ImGui::Button("Exit"))
-				glfwSetWindowShouldClose(window, true);
+	if (ImGui::Button("Exit") && ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+		glfwSetWindowShouldClose(window, true);
 
-			ImGui::Spacing();
+	if (ImGui::IsItemHovered())
+		ImGui::Text("Hold 'left ctrl'\nand click to exit");
 
-			if (ImGui::Button("Reset highscore") && ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-			{
-				gameHighscore = 0;
-				this->saveHighscore();
-			}
+	ImGui::End();
+}
 
-			if (ImGui::IsItemHovered())
-				ImGui::Text("Hold 'Left Ctrl' \nand click to proceed");
+void Game::displayGameOver()
+{
+	ImGui::SetNextWindowPos({ 210, 230 });
+	ImGui::SetNextWindowSize({ 180, 140 });
+	
+	//
 
-		ImGui::End();
-	}
+	ImGui::Begin("Game over!", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+
+		ImGui::Text("Your score: %i", gameScore);
+
+		if (ImGui::Button("Retry"))
+			this->resetGame();
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Exit"))
+			glfwSetWindowShouldClose(window, true);
+
+		ImGui::Spacing();
+
+		if (ImGui::Button("Reset highscore") && ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+		{
+			gameHighscore = 0;
+			this->saveHighscore();
+		}
+
+		if (ImGui::IsItemHovered())
+			ImGui::Text("Hold 'Left Ctrl' \nand click to proceed");
+
+	ImGui::End();
 }
 
 void Game::renderImGui()

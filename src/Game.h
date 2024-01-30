@@ -47,7 +47,12 @@ private:
 	
 	void initImGui();
 	void newFrameImGui();
+	
 	void displayImGuiContent();
+	void displayScore();
+	void displayPause();
+	void displayGameOver();
+
 	void renderImGui();
 	void shutdownImGui();
 
@@ -64,6 +69,8 @@ private:
 	Snake* snake;
 	Map* map;
 	Apple* apple;
+
+	bool isPaused;
 
 	int gameScore;
 	int gameHighscore;
