@@ -9,6 +9,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include <cstdlib>
+#include <fstream>
 
 #include "Shader.h"
 #include "Cube.h"
@@ -32,6 +33,7 @@ private:
 	void update();
 	void render();
 
+	void updateGameScore();
 	void updateDeltaTime();
 	void processInput();
 
@@ -49,6 +51,11 @@ private:
 	void renderImGui();
 	void shutdownImGui();
 
+	void resetGame();
+
+	void saveHighscore();
+	void loadHighscore();
+
 	// variables
 	Renderer* renderer;
 
@@ -57,6 +64,9 @@ private:
 	Snake* snake;
 	Map* map;
 	Apple* apple;
+
+	int gameScore;
+	int gameHighscore;
 
 	float deltaTime;
 };

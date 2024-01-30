@@ -31,14 +31,23 @@ public:
 
 	const std::list<glm::vec2>& getBody();
 
-	int getGameScore();
-
+	int getLength();
 	void changeLengthBy(int value);
+
+	void die();
+	bool isSnakeDead() const;
 
 private:
 	void inputCallbackCheck(char c);
 
-	int gameScore;
+	bool isDead;
+
+
+	// these are for saving beginning cell positions (gotta check them later)
+	bool checkSavedPos;
+	int xSavedPos;
+	int ySavedPos;
+
 
 	// variables
 	char snakeDirection;

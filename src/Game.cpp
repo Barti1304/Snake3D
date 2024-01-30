@@ -7,6 +7,10 @@ void framebuffersizecallback(GLFWwindow* window, int width, int height)
 
 Game::Game(int wWidth, int wHeight, const char* wTitle)
 {
+	this->loadHighscore();
+
+	//
+
 	this->initOpenGL(wWidth, wHeight, wTitle);
 			
 	this->initCamera(60.0f, glm::vec3(0, 0, 15));
@@ -26,12 +30,18 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 
 Game::~Game()
 {
+	this->saveHighscore();
+
+	//
+
 	delete renderer;
 	delete camera;
 	delete snake;
 	delete map;
 	delete apple;
 	
+	//
+
 	this->shutdownImGui();
 
 	glfwDestroyWindow(window);
@@ -49,6 +59,8 @@ void Game::run()
 
 void Game::update()
 {
+	this->updateGameScore();
+
 	this->updateDeltaTime();
 
 	//
@@ -62,11 +74,7 @@ void Game::update()
 	snake->update(deltaTime);
 	
 	if (snake->checkCollisionWithItself() || snake->checkCollisionWithWalls(map->getWalls()))
-	{
-		std::cout << "Collision detected!\n" << snake->getPosition().x << " x " << snake->getPosition().y << '\n';
-
-		std::exit(1);
-	}
+		snake->die();
 
 	if (snake->checkCollisionWithObject(apple->getPosition()))
 	{
@@ -123,6 +131,14 @@ void Game::render()
 	this->renderImGui();
 
 	glfwSwapBuffers(window);
+}
+
+void Game::updateGameScore()
+{
+	gameScore = (int(snake->getLength() - 3) < 0) ? 0 : int(snake->getLength() - 3);
+
+	if (!snake->isSnakeDead() && gameScore > gameHighscore)
+		gameHighscore = gameScore;
 }
 
 void Game::updateDeltaTime()
@@ -237,14 +253,50 @@ void Game::newFrameImGui()
 
 void Game::displayImGuiContent()
 {
+	int sharedFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
+
+	// score window
 	ImGui::SetNextWindowPos({ 0, 0 });
-	ImGui::SetNextWindowSize({ 100, 50 });
+	ImGui::SetNextWindowSize({ 120, 70 });
 
-	ImGui::Begin("Snake");
+	ImGui::Begin("Snake", nullptr, sharedFlags);
 
-	ImGui::Text("Score: %i", snake->getGameScore());
+		ImGui::Text("Score: %i", gameScore);
+		ImGui::Text("Highscore: %i", gameHighscore);
 
 	ImGui::End();
+
+	// game over window
+	if (snake->isSnakeDead())
+	{
+		ImGui::SetNextWindowPos({ 210, 230 });
+		ImGui::SetNextWindowSize({ 180, 140 });
+
+		ImGui::Begin("Game over!", nullptr, sharedFlags);
+
+			ImGui::Text("Your score: %i", gameScore);
+
+			if (ImGui::Button("Retry"))
+				this->resetGame();
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Exit"))
+				glfwSetWindowShouldClose(window, true);
+
+			ImGui::Spacing();
+
+			if (ImGui::Button("Reset highscore") && ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+			{
+				gameHighscore = 0;
+				this->saveHighscore();
+			}
+
+			if (ImGui::IsItemHovered())
+				ImGui::Text("Hold 'Left Ctrl' \nand click to proceed");
+
+		ImGui::End();
+	}
 }
 
 void Game::renderImGui()
@@ -258,4 +310,28 @@ void Game::shutdownImGui()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void Game::resetGame()
+{
+	delete snake;
+	snake = new Snake(glm::vec2(-1, 0));
+	
+	delete apple;
+	apple = new Apple(15);
+	apple->moveToRandomPosition(snake->getBody());
+}
+
+void Game::saveHighscore()
+{
+	std::ofstream save("highscore", std::ios::binary);
+	save.write((char*)&gameHighscore, sizeof(gameHighscore));
+	save.close();
+}
+
+void Game::loadHighscore()
+{
+	std::ifstream load("highscore", std::ios::binary);
+	load.read((char*)&gameHighscore, sizeof(gameHighscore));
+	load.close();
 }

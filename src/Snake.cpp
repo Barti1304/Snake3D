@@ -8,7 +8,11 @@ Snake::Snake(glm::vec2 pos)
 	snakeSpeed = 2.5f;
 	snakeLength = 3;
 
-	gameScore = 0;
+	isDead = false;
+
+	checkSavedPos = true;
+	xSavedPos = 0;
+	ySavedPos = 0;
 }
 
 void Snake::processInput()
@@ -29,8 +33,13 @@ void Snake::processInput()
 void Snake::update(float deltaTime)
 {
 	// direction
-	static int xSavedPos{ (int)GM_position.x * 100 };
-	static int ySavedPos{ (int)GM_position.y * 100 };
+	if (checkSavedPos)
+	{
+		checkSavedPos = false;
+
+		xSavedPos = (int)GM_position.x * 100;
+		ySavedPos = (int)GM_position.y * 100;
+	}
 
 	int xSnakePos = int(GM_position.x * 100);
 	int ySnakePos = int(GM_position.y * 100);
@@ -94,28 +103,31 @@ void Snake::update(float deltaTime)
 	}
 
 
-	// snake body
-	if (xGridCheck || yGridCheck)
+	if (!isDead)
 	{
-		bool canBeAdded{ true };
-
-		for (const auto& bodySegment : bodySegments)
+		// snake body
+		if (xGridCheck || yGridCheck)
 		{
-			if (GM_position.x == bodySegment.x && GM_position.y == bodySegment.y)
+			bool canBeAdded{ true };
+
+			for (const auto& bodySegment : bodySegments)
 			{
-				canBeAdded = false;
-				break;
+				if (GM_position.x == bodySegment.x && GM_position.y == bodySegment.y)
+				{
+					canBeAdded = false;
+					break;
+				}
 			}
+
+			if (canBeAdded)
+				bodySegments.push_back(GM_position);
 		}
 
-		if (canBeAdded)
-			bodySegments.push_back(GM_position);
+
+		// snake body lenght
+		if (bodySegments.size() > snakeLength)
+			bodySegments.pop_front();
 	}
-
-
-	// snake body lenght
-	if (bodySegments.size() > snakeLength)
-		bodySegments.pop_front();
 
 
 	// movement
@@ -191,14 +203,25 @@ const std::list<glm::vec2>& Snake::getBody()
 	return bodySegments;
 }
 
-int Snake::getGameScore()
+int Snake::getLength()
 {
-	return (int(bodySegments.size() - 3) < 0) ? 0 : int(bodySegments.size() - 3);
+	return bodySegments.size();
 }
 
 void Snake::changeLengthBy(int value)
 {
 	snakeLength += value;
+}
+
+void Snake::die()
+{
+	isDead = true;
+	snakeSpeed = 0.0f;
+}
+
+bool Snake::isSnakeDead() const
+{
+	return isDead;
 }
 
 void Snake::inputCallbackCheck(char c)
