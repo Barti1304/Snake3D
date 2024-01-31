@@ -279,24 +279,24 @@ void Game::displayGameConfig()
 
 	//
 
-	static int choice = 1;
+	static int choice = 3;
 
 	switch (choice)
 	{
 	case 1:
-		config_snakeSpeed = 2.0f;
+		config_snakeSpeed = 3.0f;
 		break;
 	case 2:
-		config_snakeSpeed = 2.75f;
+		config_snakeSpeed = 3.5f;
 		break;
 	case 3:
 		config_snakeSpeed = 4.0f;
 		break;
 	case 4:
-		config_snakeSpeed = 6.0f;
+		config_snakeSpeed = 5.5f;
 		break;
 	case 5:
-		config_snakeSpeed = 8.0f;
+		config_snakeSpeed = 7.5f;
 	}
 
 	ImGui::Begin("Difficulty", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
@@ -435,13 +435,17 @@ void Game::resetGame()
 void Game::saveHighscore()
 {
 	std::ofstream save("highscore", std::ios::binary);
+
 	save.write((char*)&gameHighscore, sizeof(gameHighscore));
+
 	save.close();
 }
 
 void Game::loadHighscore()
 {
 	std::ifstream load("highscore", std::ios::binary);
+
 	load.read((char*)&gameHighscore, sizeof(gameHighscore));
+
 	load.close();
 }
