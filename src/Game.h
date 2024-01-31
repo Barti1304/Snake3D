@@ -39,7 +39,7 @@ private:
 
 	void initOpenGL(int wWidth, int wHeight, const char* wTitle);
 	void initCamera(float fov, glm::vec3 pos);
-	void initSnake(glm::vec2 pos);
+	void initSnake();
 	void initMap();
 	void initApple();
 
@@ -49,6 +49,7 @@ private:
 	void newFrameImGui();
 	
 	void displayImGuiContent();
+	void displayGameConfig();
 	void displayScore();
 	void displayPause();
 	void displayGameOver();
@@ -71,9 +72,12 @@ private:
 	Apple* apple;
 
 	bool isPaused;
+	bool isConfig;
 
 	int gameScore;
 	int gameHighscore;
+
+	float config_snakeSpeed;
 
 	float deltaTime;
 };

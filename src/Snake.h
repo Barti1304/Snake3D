@@ -19,7 +19,7 @@
 class Snake : public GameObject
 {
 public:
-	Snake(glm::vec2 pos);
+	Snake(float speed);
 
 	void processInput();
 

@@ -8,6 +8,7 @@ void framebuffersizecallback(GLFWwindow* window, int width, int height)
 Game::Game(int wWidth, int wHeight, const char* wTitle)
 {
 	isPaused = false;
+	isConfig = true;
 
 	//
 
@@ -21,7 +22,7 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 		
 	this->initImGui();
 
-	this->initSnake(glm::vec2(-1, 0));
+	this->initSnake();
 
 	this->initMap();
 
@@ -75,9 +76,8 @@ void Game::update()
 
 	// 
 
-	if (!isPaused)
+	if (!isPaused && !isConfig)
 		snake->update(deltaTime);
-	
 
 	if (snake->checkCollisionWithItself() || snake->checkCollisionWithWalls(map->getWalls()))
 		snake->die();
@@ -157,11 +157,11 @@ void Game::updateDeltaTime()
 void Game::processInput()
 {
 	// pause
-	if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape) && !isConfig && !snake->isSnakeDead())
 		isPaused = !isPaused;
 
 	// snake controls
-	if (!isPaused)
+	if (!isPaused && !isConfig) 
 		snake->processInput();
 }
 
@@ -197,9 +197,9 @@ void Game::initCamera(float fov, glm::vec3 pos)
 	camera = new Camera(fov, pos);
 }
 
-void Game::initSnake(glm::vec2 pos)
+void Game::initSnake()
 {
-	snake = new Snake(pos);
+	snake = new Snake(config_snakeSpeed);
 }
 
 void Game::initMap()
@@ -262,11 +262,71 @@ void Game::displayImGuiContent()
 {
 	this->displayScore();
 
+	if (isConfig)
+		this->displayGameConfig();
+
 	if (isPaused)
 		this->displayPause();
 
 	if (snake->isSnakeDead())
 		this->displayGameOver();
+}
+
+void Game::displayGameConfig()
+{
+	ImGui::SetNextWindowPos({ 200, 200 });
+	ImGui::SetNextWindowSize({ 200, 200 });
+
+	//
+
+	static int choice = 1;
+
+	switch (choice)
+	{
+	case 1:
+		config_snakeSpeed = 2.0f;
+		break;
+	case 2:
+		config_snakeSpeed = 2.75f;
+		break;
+	case 3:
+		config_snakeSpeed = 4.0f;
+		break;
+	case 4:
+		config_snakeSpeed = 6.0f;
+		break;
+	case 5:
+		config_snakeSpeed = 8.0f;
+	}
+
+	ImGui::Begin("Difficulty", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+
+	if (ImGui::RadioButton("Very slow", (choice == 1)))
+		choice = 1;
+
+	if (ImGui::RadioButton("Slow", (choice == 2)))
+		choice = 2;
+
+	if (ImGui::RadioButton("Medium", (choice == 3)))
+		choice = 3;
+
+	if (ImGui::RadioButton("Fast", (choice == 4)))
+		choice = 4;
+
+	if (ImGui::RadioButton("Very fast", (choice == 5)))
+		choice = 5;
+
+
+	if (ImGui::Button("Play"))
+	{
+		this->resetGame();
+		isConfig = false;
+	}
+	
+	if (ImGui::Button("Exit"))
+		glfwSetWindowShouldClose(window, true);
+
+	ImGui::End();
 }
 
 void Game::displayScore()
@@ -298,19 +358,22 @@ void Game::displayPause()
 
 	ImGui::SameLine();
 
-	if (ImGui::Button("Exit") && ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+	if (ImGui::Button("Exit"))
 		glfwSetWindowShouldClose(window, true);
 
-	if (ImGui::IsItemHovered())
-		ImGui::Text("Hold 'left ctrl'\nand click to exit");
+	if (ImGui::Button("Difficulty"))
+	{
+		isPaused = false;
+		isConfig = true;
+	}
 
 	ImGui::End();
 }
 
 void Game::displayGameOver()
 {
-	ImGui::SetNextWindowPos({ 210, 230 });
-	ImGui::SetNextWindowSize({ 180, 140 });
+	ImGui::SetNextWindowPos({ 200, 230 });
+	ImGui::SetNextWindowSize({ 200, 140 });
 	
 	//
 
@@ -325,6 +388,14 @@ void Game::displayGameOver()
 
 		if (ImGui::Button("Exit"))
 			glfwSetWindowShouldClose(window, true);
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Difficulty"))
+		{
+			isPaused = false;
+			isConfig = true;
+		}
 
 		ImGui::Spacing();
 
@@ -356,10 +427,8 @@ void Game::shutdownImGui()
 void Game::resetGame()
 {
 	delete snake;
-	snake = new Snake(glm::vec2(-1, 0));
-	
-	delete apple;
-	apple = new Apple(15);
+	snake = new Snake(config_snakeSpeed);
+
 	apple->moveToRandomPosition(snake->getBody());
 }
 

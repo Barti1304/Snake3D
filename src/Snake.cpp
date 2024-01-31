@@ -1,11 +1,11 @@
 #include "Snake.h"
 
-Snake::Snake(glm::vec2 pos)
+Snake::Snake(float speed)
 {
-	GM_position = pos;
+	GM_position = glm::vec2(-1, 0);
 
 	snakeDirection = 'd';
-	snakeSpeed = 2.5f;
+	snakeSpeed = speed;
 	snakeLength = 3;
 
 	isDead = false;
