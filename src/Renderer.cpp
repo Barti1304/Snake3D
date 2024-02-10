@@ -40,6 +40,22 @@ void Renderer::setActiveTexture(std::string id)
 		std::cout << "[RENDERER : ERROR] - no texture with id: '" << id << "' has been found!\n";
 }
 
+Shader* Renderer::getShader(std::string id)
+{
+	if (shaderMap.find(id) != shaderMap.end())
+		return shaderMap.at(id);
+
+	return 0;
+}
+
+Texture* Renderer::getTexture(std::string id)
+{
+	if (textureMap.find(id) != textureMap.end())
+		return textureMap.at(id);
+
+	return 0;
+}
+
 void Renderer::setInt(const char* uniform, int value)
 {
 	activeShader->setInt(uniform, value);

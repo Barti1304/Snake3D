@@ -28,6 +28,8 @@ Game::Game(int wWidth, int wHeight, const char* wTitle)
 
 	this->initApple();
 
+	this->initLight();
+
 	//
 
 	this->initRenderer();
@@ -70,6 +72,9 @@ void Game::update()
 
 	//
 
+	spotLight->setPosition(glm::vec3(snake->getPosition(), 5));
+	spotLight->updateLightData(renderer->getShader("shader"));
+
 	glfwPollEvents();
 
 	this->processInput();
@@ -99,6 +104,15 @@ void Game::render()
 	//
 
 	renderer->setActiveShader("shader");
+	renderer->setVec3("ViewPos", camera->getPosition());
+
+	// set specular map
+	glActiveTexture(GL_TEXTURE1);
+	renderer->setActiveTexture("tex_specular");
+
+	// set other textures (from here)
+	glActiveTexture(GL_TEXTURE0);
+
 	renderer->setMat4("view", camera->getViewMatrix());
 	renderer->setMat4("projection", camera->getProjectionMatrix());
 
@@ -225,6 +239,12 @@ void Game::initApple()
 	apple->moveToRandomPosition(snake->getBody());
 }
 
+void Game::initLight()
+{
+	spotLight = new SpotLight({/*empty position*/}, {0, 0, -1}, {0.1f, 0.1f, 0.1f,}, {0.8f, 0.8f, 0.8f}, {1, 1, 1},
+		1.0f, 0.09f, 0.032f, 15.0f, 45.0f);
+}
+
 void Game::initRenderer()
 {
 	renderer = new Renderer();
@@ -237,6 +257,12 @@ void Game::initRenderer()
 	renderer->addTexture(new Texture("./res/wall.png"), "tex_wall");
 	renderer->addTexture(new Texture("./res/apple.png"), "tex_apple");
 	renderer->addTexture(new Texture("./res/grass.png"), "tex_grass");
+	renderer->addTexture(new Texture("./res/specular.png"), "tex_specular");
+
+	// init unit textures
+	renderer->setActiveShader("shader");
+	renderer->setInt("material.diffuse", 0);
+	renderer->setInt("material.specular", 1);
 }
 
 void Game::initImGui()

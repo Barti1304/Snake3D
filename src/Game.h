@@ -18,6 +18,7 @@
 #include "Snake.h"
 #include "Map.h"
 #include "Apple.h"
+#include "SpotLight.h"
 
 #include "Renderer.h"
 
@@ -42,6 +43,7 @@ private:
 	void initSnake();
 	void initMap();
 	void initApple();
+	void initLight();
 
 	void initRenderer();
 	
@@ -70,6 +72,7 @@ private:
 	Snake* snake;
 	Map* map;
 	Apple* apple;
+	SpotLight* spotLight;
 
 	bool isPaused;
 	bool isConfig;

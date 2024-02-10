@@ -9,6 +9,8 @@ public:
 
 	void bindTexture();
 
+	unsigned int getID();
+
 private:
 	unsigned int texture;
 };

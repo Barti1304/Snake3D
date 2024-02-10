@@ -40,3 +40,8 @@ void Texture::bindTexture()
 {
 	glBindTexture(GL_TEXTURE_2D, texture);
 }
+
+unsigned int Texture::getID()
+{
+	return texture;
+}

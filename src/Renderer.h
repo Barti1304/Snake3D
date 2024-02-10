@@ -21,6 +21,9 @@ public:
 	void setActiveShader(std::string id);
 	void setActiveTexture(std::string id);
 
+	Shader* getShader(std::string id);
+	Texture* getTexture(std::string id);
+
 	void setInt(const char* uniform, int value);
 	void setFloat(const char* uniform, float value);
 	void setVec3(const char* uniform, glm::vec3 value);
