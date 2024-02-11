@@ -342,12 +342,20 @@ void Game::displayGameConfig()
 	if (ImGui::RadioButton("Very fast", (choice == 5)))
 		choice = 5;
 
+	ImGui::Separator();
+	ImGui::Checkbox("Darkness mode", &config_enableDarkness);
+	ImGui::Separator();
 
+	renderer->setActiveShader("shader");
+	renderer->setInt("config_enableDarkness", config_enableDarkness);
+	
 	if (ImGui::Button("Play"))
 	{
 		this->resetGame();
 		isConfig = false;
 	}
+
+	ImGui::SameLine();
 	
 	if (ImGui::Button("Exit"))
 		glfwSetWindowShouldClose(window, true);

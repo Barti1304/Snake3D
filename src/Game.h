@@ -81,6 +81,7 @@ private:
 	int gameHighscore;
 
 	float config_snakeSpeed;
+	bool config_enableDarkness;
 
 	float deltaTime;
 };

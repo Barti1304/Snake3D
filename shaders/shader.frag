@@ -34,16 +34,24 @@ uniform SpotLight spotLight;
 
 uniform vec3 ViewPos;
 
+// darkness mode
+uniform bool config_enableDarkness;
+
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-	vec3 normal = normalize(Normal);
-	vec3 viewDir = normalize(ViewPos - FragPos);
+	if (config_enableDarkness)
+	{
+		vec3 normal = normalize(Normal);
+		vec3 viewDir = normalize(ViewPos - FragPos);
 
-	vec3 result = CalcSpotLight(spotLight, normal, FragPos, viewDir);
+		vec3 result = CalcSpotLight(spotLight, normal, FragPos, viewDir);
 
-	FragColor = vec4(result, 1);
+		FragColor = vec4(result, 1);
+	}
+	else
+		FragColor = texture(material.diffuse, TexCoords);
 }
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
