@@ -1,6 +1,6 @@
 # Snake3D
 
-Made in around 13 hours with C++ and OpenGL
+Initial release (v1.0) made in around 13 hours with C++ and OpenGL
 
 **Controls:**
 * W - up
